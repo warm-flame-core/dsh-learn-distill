@@ -1,0 +1,23 @@
+# 用户本机配置（不入 git）
+config/local.toml
+
+# Python 运行态
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 运行时产物
+.distill/
+*.srt.corrected.srt
+*.corrections.json
+*.tmp
+*.log
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp

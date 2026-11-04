@@ -1,0 +1,75 @@
+# learn-distill 默认配置
+# 覆盖顺序：环境变量 > config/local.toml > 本文件
+
+[paths]
+# 数据根：课程素材与产物所在目录
+# 解析顺序：LEARN_DISTILL_HOME > local.toml 的 root > <cwd>
+root = ""
+state_dir = ""      # 跨课程沉淀：术语表、判型结论
+cache_dir = ""      # 中间产物，可随时删
+out_dir = ""        # 交付物
+
+[tools]
+python = ""         # 留空 = 当前解释器
+ffmpeg = ""         # 留空 = PATH 查找；建议写绝对路径
+ffprobe = ""
+yutto = ""          # 留空 = PATH 查找
+llama_cpp = ""      # 手写识别运行时
+
+[models]
+hf_home = ""        # 留空 = 环境变量 HF_HOME
+whisper = "large-v3-turbo"
+whisper_device = "cuda"
+whisper_compute = "int8_float16"
+whisper_fallback_device = "cpu"
+whisper_fallback_compute = "int8"
+whisper_lang = "zh"
+whisper_threads = 8
+whisper_vad = true
+
+qwen_vl_model = ""      # Qwen2.5-VL GGUF 路径
+qwen_vl_mmproj = ""     # mmproj GGUF 路径
+qwen_vl_ctx = 4096
+
+[ocr]
+engine = "rapidocr"     # rapidocr | none
+min_confidence = 0.5
+# 手写页判定：以下判据任一命中即走 Qwen2.5-VL
+handwriting_color_stddev = 40
+handwriting_edge_density = 0.18
+
+[frames]
+fps = 2                 # 抽帧频率
+scale_height = 720      # 抽帧缩放高度
+stable_min_sec = 1.5    # 画面稳定判定最短持续
+diff_threshold = 0.035  # 帧差阈值
+candidates_per_seg = 6  # 每段候选帧数
+
+[subtitle]
+backend_priority = ["bili", "file", "whisper"]
+min_coverage = 0.8
+max_coverage = 1.2
+lang_priority = ["ai-zh", "zh-Hans", "zh-CN", "zh"]
+
+[bilibili]
+auth_file = ""          # yutto 的 auth.toml 路径
+quality_4k = 120
+quality_1080p = 80
+quality_720p = 64
+request_delay = 1.0
+
+[glossary]
+subjects = ""           # 逗号分隔，留空 = 全部
+extra_files = []        # 用户自定义词库
+enable_single_char = false
+
+[writing]
+max_chars_per_lecture = 8000
+min_cover_ratio = 0.85   # 正文不得少于字幕正文的这个比例
+
+[validate]
+anchor_check = true
+citation_check = true
+format_check = true
+blind_test_questions = 5
+blind_test_pass_threshold = 4

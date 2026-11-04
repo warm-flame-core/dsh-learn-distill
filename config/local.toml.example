@@ -1,0 +1,20 @@
+# 本机覆盖配置示例
+# 复制为 local.toml 后按实际路径填写；local.toml 不入 git。
+
+[paths]
+root = "<课程根目录>"
+
+[tools]
+ffmpeg = "<ffmpeg 绝对路径>"
+ffprobe = "<ffprobe 绝对路径>"
+
+[models]
+hf_home = "<hf_home 路径>"
+qwen_vl_model = "<qwen_vl_model 路径>"
+qwen_vl_mmproj = "<qwen_vl_mmproj 路径>"
+
+[bilibili]
+auth_file = "<auth_file 路径>"
+
+[glossary]
+subjects = "math,physics"

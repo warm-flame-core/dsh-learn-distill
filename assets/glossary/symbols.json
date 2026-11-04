@@ -1,0 +1,395 @@
+{
+  "_meta": {
+    "name": "希腊字母与拉丁符号读音纠错库",
+    "subject": "symbols",
+    "version": "1.1",
+    "note": "解决 ASR 把希腊字母英文读法/国际音标读法转成中文谐音的问题。这是理科课程的通用痛点。"
+  },
+  "rules": [
+    {
+      "from": "阿耳法",
+      "to": "α",
+      "alt": "alpha"
+    },
+    {
+      "from": "阿尔法",
+      "to": "α",
+      "alt": "alpha"
+    },
+    {
+      "from": "阿拉法",
+      "to": "α",
+      "alt": "alpha"
+    },
+    {
+      "from": "埃尔法",
+      "to": "α",
+      "alt": "alpha"
+    },
+    {
+      "from": "贝塔",
+      "to": "β",
+      "alt": "beta"
+    },
+    {
+      "from": "背她",
+      "to": "β",
+      "alt": "beta"
+    },
+    {
+      "from": "北他",
+      "to": "β",
+      "alt": "beta"
+    },
+    {
+      "from": "贝它",
+      "to": "β",
+      "alt": "beta"
+    },
+    {
+      "from": "伽马",
+      "to": "γ",
+      "alt": "gamma"
+    },
+    {
+      "from": "嘎嘛",
+      "to": "γ",
+      "alt": "gamma"
+    },
+    {
+      "from": "加马",
+      "to": "γ",
+      "alt": "gamma"
+    },
+    {
+      "from": "伽玛",
+      "to": "γ",
+      "alt": "gamma"
+    },
+    {
+      "from": "德耳塔",
+      "to": "δ",
+      "alt": "delta"
+    },
+    {
+      "from": "德尔塔",
+      "to": "δ",
+      "alt": "delta"
+    },
+    {
+      "from": "得尔塔",
+      "to": "δ",
+      "alt": "delta"
+    },
+    {
+      "from": "待尔塔",
+      "to": "δ",
+      "alt": "delta"
+    },
+    {
+      "from": "艾普西隆",
+      "to": "ε",
+      "alt": "epsilon"
+    },
+    {
+      "from": "艾普西龙",
+      "to": "ε",
+      "alt": "epsilon"
+    },
+    {
+      "from": "艾普西伦",
+      "to": "ε",
+      "alt": "epsilon"
+    },
+    {
+      "from": "伊普西龙",
+      "to": "ε",
+      "alt": "epsilon"
+    },
+    {
+      "from": "截塔",
+      "to": "ζ",
+      "alt": "zeta"
+    },
+    {
+      "from": "泽塔",
+      "to": "ζ",
+      "alt": "zeta"
+    },
+    {
+      "from": "杰塔",
+      "to": "ζ",
+      "alt": "zeta"
+    },
+    {
+      "from": "艾塔",
+      "to": "η",
+      "alt": "eta"
+    },
+    {
+      "from": "伊塔",
+      "to": "η",
+      "alt": "eta"
+    },
+    {
+      "from": "埃塔",
+      "to": "η",
+      "alt": "eta"
+    },
+    {
+      "from": "西塔",
+      "to": "θ",
+      "alt": "theta"
+    },
+    {
+      "from": "希塔",
+      "to": "θ",
+      "alt": "theta"
+    },
+    {
+      "from": "忒塔",
+      "to": "θ",
+      "alt": "theta"
+    },
+    {
+      "from": "斯塔",
+      "to": "θ",
+      "alt": "theta",
+      "context": "角度|温度|相位"
+    },
+    {
+      "from": "约塔",
+      "to": "ι",
+      "alt": "iota"
+    },
+    {
+      "from": "伊奥塔",
+      "to": "ι",
+      "alt": "iota"
+    },
+    {
+      "from": "卡帕",
+      "to": "κ",
+      "alt": "kappa"
+    },
+    {
+      "from": "卡巴",
+      "to": "κ",
+      "alt": "kappa"
+    },
+    {
+      "from": "兰姆达",
+      "to": "λ",
+      "alt": "lambda"
+    },
+    {
+      "from": "拉姆达",
+      "to": "λ",
+      "alt": "lambda"
+    },
+    {
+      "from": "兰布达",
+      "to": "λ",
+      "alt": "lambda"
+    },
+    {
+      "from": "兰木达",
+      "to": "λ",
+      "alt": "lambda"
+    },
+    {
+      "from": "缪",
+      "to": "μ",
+      "alt": "mu",
+      "allow_single": true,
+      "context": "摩擦系数|磁导率|均值|期望|希腊"
+    },
+    {
+      "from": "谬",
+      "to": "μ",
+      "alt": "mu",
+      "allow_single": true,
+      "context": "摩擦系数|磁导率|均值|期望|希腊"
+    },
+    {
+      "from": "可塞",
+      "to": "ξ",
+      "alt": "xi"
+    },
+    {
+      "from": "克西",
+      "to": "ξ",
+      "alt": "xi"
+    },
+    {
+      "from": "克希",
+      "to": "ξ",
+      "alt": "xi"
+    },
+    {
+      "from": "奥密可戎",
+      "to": "ο",
+      "alt": "omicron"
+    },
+    {
+      "from": "奥米克戎",
+      "to": "ο",
+      "alt": "omicron"
+    },
+    {
+      "from": "奥密克戎",
+      "to": "ο",
+      "alt": "omicron"
+    },
+    {
+      "from": "圆周率",
+      "to": "π",
+      "alt": "pi"
+    },
+    {
+      "from": "派",
+      "to": "π",
+      "alt": "pi",
+      "allow_single": true,
+      "context": "圆周率|半径|面积|约等于|π"
+    },
+    {
+      "from": "辟",
+      "to": "π",
+      "alt": "pi",
+      "allow_single": true,
+      "context": "圆周率|半径|面积|约等于"
+    },
+    {
+      "from": "柔",
+      "to": "ρ",
+      "alt": "rho",
+      "allow_single": true,
+      "context": "密度|电阻率|希腊"
+    },
+    {
+      "from": "罗",
+      "to": "ρ",
+      "alt": "rho",
+      "allow_single": true,
+      "context": "密度|电阻率|希腊"
+    },
+    {
+      "from": "西格马",
+      "to": "σ",
+      "alt": "sigma"
+    },
+    {
+      "from": "西格玛",
+      "to": "σ",
+      "alt": "sigma"
+    },
+    {
+      "from": "希格玛",
+      "to": "σ",
+      "alt": "sigma"
+    },
+    {
+      "from": "求和符号",
+      "to": "∑",
+      "alt": "sigma"
+    },
+    {
+      "from": "套",
+      "to": "τ",
+      "alt": "tau",
+      "allow_single": true,
+      "context": "时间常数|切应力|希腊"
+    },
+    {
+      "from": "陶",
+      "to": "τ",
+      "alt": "tau",
+      "allow_single": true,
+      "context": "时间常数|切应力|希腊"
+    },
+    {
+      "from": "衣普西隆",
+      "to": "υ",
+      "alt": "upsilon"
+    },
+    {
+      "from": "宇普西龙",
+      "to": "υ",
+      "alt": "upsilon"
+    },
+    {
+      "from": "黄金分割",
+      "to": "φ",
+      "alt": "phi"
+    },
+    {
+      "from": "斐",
+      "to": "φ",
+      "alt": "phi",
+      "allow_single": true,
+      "context": "相位|角度|电势|磁通|黄金"
+    },
+    {
+      "from": "费",
+      "to": "φ",
+      "alt": "phi",
+      "allow_single": true,
+      "context": "相位|角度|电势|磁通"
+    },
+    {
+      "from": "菲",
+      "to": "φ",
+      "alt": "phi",
+      "allow_single": true,
+      "context": "相位|角度|电势|磁通"
+    },
+    {
+      "from": "卡方",
+      "to": "χ²",
+      "alt": "chi-square"
+    },
+    {
+      "from": "喜",
+      "to": "χ",
+      "alt": "chi",
+      "allow_single": true,
+      "context": "卡方|统计|希腊"
+    },
+    {
+      "from": "普西",
+      "to": "ψ",
+      "alt": "psi"
+    },
+    {
+      "from": "波函数",
+      "to": "ψ",
+      "alt": "psi"
+    },
+    {
+      "from": "欧米伽",
+      "to": "ω",
+      "alt": "omega"
+    },
+    {
+      "from": "欧米茄",
+      "to": "ω",
+      "alt": "omega"
+    },
+    {
+      "from": "奥米伽",
+      "to": "ω",
+      "alt": "omega"
+    },
+    {
+      "from": "奥米加",
+      "to": "ω",
+      "alt": "omega"
+    },
+    {
+      "from": "角频率",
+      "to": "ω",
+      "alt": "omega"
+    }
+  ]
+}
