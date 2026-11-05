@@ -31,16 +31,32 @@ whenToUse: 蒸馏课程, 蒸馏网课, 课程蒸馏, 网课转讲义, 网课转�
 0 解析参数          Lead
 1 probe 素材盘点     Lead（脚本）→ 列分P、过滤介绍页、报告缺口
 2 代价闸门           Lead → 停，等用户确认范围与 token 成本
-3 取素材            Lead（脚本）：yutto 取字幕/视频 + 本地素材
+3 取素材            Lead（脚本）：fetch.py 取字幕/视频 + 本地素材
 4 术语纠错          Lead（脚本）：glossary_fix.py
-5 抽帧 + OCR        Lead（脚本）
-6 对齐              Lead（脚本）→ anchors.json
-7 六栏写作          子代理（每讲次一个）
-8 装配              Lead（脚本）
-9 校验              Lead（脚本）+ 盲测（fresh 子代理）
+5 抽帧 + OCR        Lead（脚本）：frames.py + ocr.py
+6 对齐              Lead（脚本）：align.py → anchors.json
+7 六栏写作          子代理（每讲次一个）/ 团队（≥5 讲次）
+8 装配              Lead（脚本）：build_doc.py
+9 校验              Lead（脚本）：validate.py + 盲测（fresh 子代理）
 ```
 
 两个强制闸门：Stage 1 确认范围、Stage 2 确认代价 → `references/entry.md`
+
+一键编排：
+
+```
+python scripts/distill.py <BV号或本地视频> --goal deep_mastery --config config/local.toml
+```
+
+流程跑到 Stage 6（anchors.json 就绪）后停下，等派代理写作。
+写完讲义后再跑一次，会自动装配与校验。
+
+续跑：
+
+```
+python scripts/state.py show <course>/dist     # 看进度与下一步
+python scripts/distill.py <target> --goal ... --resume
+```
 
 ## 分工原则
 
@@ -106,6 +122,7 @@ scripts/setup_env.ps1           # 创建 venv 并安装依赖
 
 | 主题 | 文件 |
 |---|---|
+| 使用说明（新会话从这里读） | `references/usage.md` |
 | 入口参数、中文映射、闸门 | `references/entry.md` |
 | 环境、依赖、模型 | `references/env.md` |
 | 子代理与团队分工 | `references/agent-teams.md` |
