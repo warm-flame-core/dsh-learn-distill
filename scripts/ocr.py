@@ -25,10 +25,18 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     except Exception:
         pass
 
-# 手写判据：核心区（左 5% 到右 80%）的彩色笔画占比
+# 手写判据：先用廉价像素特征筛出候选，再用 VLM/RapidOCR 的识别质量做终判。
+#
+# 像素特征不能单用：手写也可能是黑笔（核心区彩色 0.0000），
+# 印刷体也可能带彩色装饰（0.0044）。实测两者区间重叠。
 HANDWRITING_CORE_RATIO = 0.012
 SAT_MIN = 0.35
 VAL_MIN = 0.30
+
+# 识别质量判据：VLM 字数 / RapidOCR 字数
+# 手写页 RapidOCR 只能出碎片，VLM 能出完整 LaTeX
+VLM_RAPID_RATIO_THRESHOLD = 2.0
+VLM_MIN_CHARS = 40
 
 
 def page_metrics(img_path: Path) -> dict:
@@ -88,7 +96,7 @@ def ocr_rapid(img_path: Path) -> dict:
 
 
 def ocr_vlm(img_path: Path, llama_bin: Path, model: Path, mmproj: Path,
-            prompt: str = "", n_predict: int = 500, timeout: int = 300) -> dict:
+            prompt: str = "", n_predict: int = 1200, timeout: int = 300) -> dict:
     """Qwen2.5-VL：手写/公式识别，输出 LaTeX。"""
     if not llama_bin.is_file():
         return {"available": False, "error": f"llama-mtmd-cli 不存在：{llama_bin}"}
@@ -119,38 +127,75 @@ def ocr_vlm(img_path: Path, llama_bin: Path, model: Path, mmproj: Path,
     if "<|im_start|>assistant" in text:
         text = text.split("<|im_start|>assistant", 1)[1].strip()
     text = text.replace("<|im_end|>", "").strip()
+
+    # 截断检测：输出没有常见收尾标记 → 可能被 n_predict 截断
+    truncated = False
+    if text:
+        tail = text[-40:]
+        if not any(t in tail for t in ("```", "。", "$$", "\\end", "\n\n")):
+            truncated = True
+
     return {
         "available": True,
         "text": text,
         "chars": len(text.replace(" ", "")),
         "returncode": proc.returncode,
+        "truncated": truncated,
     }
 
 
-def process_frame(img_path: Path, vlm_cfg: dict, force_vlm: bool = False) -> dict:
-    """单帧处理：先判手写，再决定走哪条 OCR。"""
+def process_frame(img_path: Path, vlm_cfg: dict, force_vlm: bool = False,
+                  auto_vlm: bool = False) -> dict:
+    """单帧处理：先判手写，再决定走哪条 OCR。
+
+    auto_vlm=True 时做双路识别对比：
+    - 先跑 RapidOCR
+    - 若 RapidOCR 结果像碎片（字数少）→ 再跑 VLM
+    - VLM 字数 / RapidOCR 字数 ≥ 阈值 → 判为手写，用 VLM 结果
+    - 否则判为印刷，用 RapidOCR 结果
+
+    像素特征（核心区彩色占比）只作辅助记录，不作主判据——
+    手写也可能用黑笔（实测核心彩色 0.0000），印刷也可能带彩色装饰。
+    """
     m = page_metrics(img_path)
     result = {"file": img_path.name, "metrics": m, "engine": None}
 
-    use_vlm = force_vlm or m["is_handwriting"]
-    if use_vlm and vlm_cfg.get("llama_bin"):
-        v = ocr_vlm(img_path,
-                    Path(vlm_cfg["llama_bin"]),
-                    Path(vlm_cfg["model"]),
-                    Path(vlm_cfg["mmproj"]),
-                    n_predict=vlm_cfg.get("n_predict", 500))
-        result["engine"] = "vlm"
-        result["vlm"] = v
-        if v.get("available"):
-            result["text"] = v["text"]
-            return result
-        # VLM 不可用则降级到 RapidOCR
-        result["vlm_fallback"] = v.get("error", "unknown")
+    vlm_ready = all(vlm_cfg.get(k) for k in ("llama_bin", "model", "mmproj"))
+    use_vlm = force_vlm or (auto_vlm and vlm_ready)
 
+    if not use_vlm:
+        r = ocr_rapid(img_path)
+        result["engine"] = "rapidocr"
+        result["rapid"] = r
+        result["text"] = r.get("text", "")
+        return result
+
+    # 双路识别
     r = ocr_rapid(img_path)
-    result["engine"] = "rapidocr"
     result["rapid"] = r
-    result["text"] = r.get("text", "")
+    rc = len(r.get("text", "").replace(" ", ""))
+
+    v = ocr_vlm(img_path,
+                Path(vlm_cfg["llama_bin"]),
+                Path(vlm_cfg["model"]),
+                Path(vlm_cfg["mmproj"]),
+                n_predict=vlm_cfg.get("n_predict", 1200))
+    result["vlm"] = v
+    vc = v.get("chars", 0) if v.get("available") else 0
+    ratio = vc / max(1, rc)
+    result["ratio"] = round(ratio, 2)
+
+    is_handwriting = (force_vlm
+                      or (ratio >= VLM_RAPID_RATIO_THRESHOLD and vc >= VLM_MIN_CHARS))
+    result["is_handwriting"] = is_handwriting
+    result["metrics"]["is_handwriting"] = is_handwriting
+
+    if is_handwriting and v.get("available"):
+        result["engine"] = "vlm"
+        result["text"] = v["text"]
+    else:
+        result["engine"] = "rapidocr"
+        result["text"] = r.get("text", "")
     return result
 
 
@@ -172,6 +217,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("-o", "--out", type=Path, required=True, help="输出 JSON")
     ap.add_argument("--config", type=Path, default=None, help="local.toml")
     ap.add_argument("--force-vlm", action="store_true", help="强制走 VLM")
+    ap.add_argument("--auto-vlm", action="store_true",
+                    help="双路识别对比：RapidOCR 结果像碎片时再跑 VLM，按字数比判定手写")
     ap.add_argument("--llama-bin", type=Path, default=None)
     ap.add_argument("--model", type=Path, default=None)
     ap.add_argument("--mmproj", type=Path, default=None)
@@ -185,7 +232,7 @@ def main(argv: list[str]) -> int:
         "llama_bin": str(args.llama_bin or ocr_cfg.get("llama_bin") or ""),
         "model": str(args.model or models.get("qwen_vl_model") or ""),
         "mmproj": str(args.mmproj or models.get("qwen_vl_mmproj") or ""),
-        "n_predict": int(ocr_cfg.get("vlm_max_tokens", 500)),
+        "n_predict": int(ocr_cfg.get("vlm_max_tokens", 1200)),
     }
 
     files = ([args.target] if args.target.is_file()
@@ -195,18 +242,24 @@ def main(argv: list[str]) -> int:
         return 1
 
     print(f"处理 {len(files)} 张图")
-    print(f"手写判据阈值：核心区彩色占比 ≥ {HANDWRITING_CORE_RATIO}")
+    mode = "force-vlm" if args.force_vlm else ("auto-vlm" if args.auto_vlm else "rapidocr")
+    print(f"识别模式：{mode}")
+    if args.auto_vlm:
+        print(f"手写判据：VLM字数/RapidOCR字数 ≥ {VLM_RAPID_RATIO_THRESHOLD} "
+              f"且 VLM ≥ {VLM_MIN_CHARS} 字")
 
     results = []
     n_hw = 0
     for f in files:
-        r = process_frame(f, vlm_cfg, args.force_vlm)
+        r = process_frame(f, vlm_cfg, args.force_vlm, args.auto_vlm)
         results.append(r)
         if r["metrics"]["is_handwriting"]:
             n_hw += 1
         flag = "手写" if r["metrics"]["is_handwriting"] else "印刷"
+        extra = (f" 比值={r['ratio']:.1f} rapid={r['rapid'].get('text','')[:0]}"
+                 if "ratio" in r else "")
         print(f"  {f.name:16} [{flag}] 核心彩色={r['metrics']['core_color_ratio']:.4f} "
-              f"→ {r['engine']} ({len(r.get('text',''))}字)")
+              f"→ {r['engine']} ({len(r.get('text',''))}字){extra}")
 
     payload = {
         "source": str(args.target),

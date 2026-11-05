@@ -69,29 +69,11 @@ DEFAULTS = {
 
 SMALL_W, SMALL_H = 48, 27
 
-
-def find_ffmpeg(cfg_path: str = "") -> str:
-    import shutil
-    if cfg_path and Path(cfg_path).is_file():
-        return cfg_path
-    found = shutil.which("ffmpeg")
-    if found:
-        return found
-    for c in [r"D:\Software\FFmpeg\bin\ffmpeg.exe", r"C:\ffmpeg\bin\ffmpeg.exe"]:
-        if Path(c).is_file():
-            return c
-    raise SystemExit("找不到 ffmpeg：请安装或在配置中指定 [tools] ffmpeg 绝对路径")
+from media_util import find_ffmpeg, find_ffprobe, probe_media  # noqa: E402
 
 
 def probe_duration(ffmpeg: str, video: Path) -> float:
-    out = subprocess.run(
-        [ffmpeg, "-i", str(video)],
-        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    m = re.search(r"Duration: (\d+):(\d+):(\d+)\.(\d+)", out.stderr or "")
-    if not m:
-        raise SystemExit(f"无法读取视频时长：{video}")
-    h, mi, s, cs = m.groups()
-    return int(h) * 3600 + int(mi) * 60 + int(s) + int(cs) / 100.0
+    return probe_media(ffmpeg, video)["duration"]
 
 
 def parse_hms(s: str) -> float:

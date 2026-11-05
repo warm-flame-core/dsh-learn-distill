@@ -40,7 +40,7 @@ whenToUse: 蒸馏课程, 蒸馏网课, 课程蒸馏, 网课转讲义, 网课转�
 9 校验              Lead（脚本）+ 盲测（fresh 子代理）
 ```
 
-两个强制闸门：Stage 1 确认范围、Stage 2 确认代价。
+两个强制闸门：Stage 1 确认范围、Stage 2 确认代价 → `references/entry.md`
 
 ## 分工原则
 
@@ -50,6 +50,7 @@ whenToUse: 蒸馏课程, 蒸馏网课, 课程蒸馏, 网课转讲义, 网课转�
 - **决策归 Lead**：参数、闸门、最终裁决，不可委派
 
 任务书模板与等待纪律 → `references/agent-teams.md`
+长任务编排、会话结束、队友状态判据 → `references/orchestration.md`
 
 ## 产物
 
@@ -71,12 +72,10 @@ courses/<course-id>/
 
 ## 六栏结构
 
-`## 概念` / `## 公式` / `## 推导` / `## 例题` / `## 易混与坑` / `## 考点`
+六栏定义、顺序、每栏要求、锚点规范、来源标记、篇幅比例
+→ `references/contracts/chapter_writer.md`
 
-顺序固定，空栏写"本讲无"，不省略。
-每条必须带锚点（`mm:ss` / `slide N` / `教材 p.N`）与来源标记。
-
-写作契约 → `references/contracts/chapter_writer.md`
+要点：六栏顺序固定，空栏写「本讲无」不省略，每条必须带锚点与来源标记。
 
 ## 术语纠错
 
@@ -102,6 +101,18 @@ scripts/setup_env.ps1           # 创建 venv 并安装依赖
 
 产出后可按用户提问定位内容：只从源材料提取并附可验证引用，不做教学推进。
 引用格式：`[<章节> · <锚点>] "原文摘录"`。
+
+## 参考文件
+
+| 主题 | 文件 |
+|---|---|
+| 入口参数、中文映射、闸门 | `references/entry.md` |
+| 环境、依赖、模型 | `references/env.md` |
+| 子代理与团队分工 | `references/agent-teams.md` |
+| 长任务编排、会话结束 | `references/orchestration.md` |
+| 降级方案 | `references/degradation.md` |
+| 方法分支（OCR/判型/抽帧等） | `references/branches.md` |
+| 六栏写作契约 | `references/contracts/chapter_writer.md` |
 
 ## 禁止事项
 

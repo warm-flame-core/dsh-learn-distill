@@ -33,39 +33,7 @@ INTRO_TITLE_PATTERNS = [
 INTRO_MIN_DURATION = 180.0   # 秒，短于此且标题命中即判介绍页
 
 
-def find_ffmpeg(cfg_path: str = "") -> str:
-    import shutil
-    if cfg_path and Path(cfg_path).is_file():
-        return cfg_path
-    found = shutil.which("ffmpeg")
-    if found:
-        return found
-    for c in [r"D:\Software\FFmpeg\bin\ffmpeg.exe"]:
-        if Path(c).is_file():
-            return c
-    raise SystemExit("找不到 ffmpeg")
-
-
-def probe_media(ffmpeg: str, media: Path) -> dict:
-    """读媒体基本信息。"""
-    out = subprocess.run([ffmpeg, "-i", str(media)],
-                         capture_output=True, text=True,
-                         encoding="utf-8", errors="replace")
-    err = out.stderr or ""
-
-    info = {"duration": 0.0, "width": 0, "height": 0, "fps": 0.0, "has_audio": False}
-    m = re.search(r"Duration: (\d+):(\d+):(\d+)\.(\d+)", err)
-    if m:
-        h, mi, s, cs = m.groups()
-        info["duration"] = int(h) * 3600 + int(mi) * 60 + int(s) + int(cs) / 100.0
-    m = re.search(r"Stream #.*Video.*?(\d{2,5})x(\d{2,5})", err)
-    if m:
-        info["width"], info["height"] = int(m.group(1)), int(m.group(2))
-    m = re.search(r"(\d+(?:\.\d+)?) fps", err)
-    if m:
-        info["fps"] = float(m.group(1))
-    info["has_audio"] = "Audio:" in err
-    return info
+from media_util import find_ffmpeg, probe_media  # noqa: E402
 
 
 def sample_frames(ffmpeg: str, media: Path, duration: float,
@@ -295,11 +263,20 @@ def main(argv: list[str]) -> int:
 
     pages_keep, pages_drop = [], []
     if args.pages_json and args.pages_json.is_file():
-        pages = json.loads(args.pages_json.read_text(encoding="utf-8"))
-        pages_keep, pages_drop = filter_pages(pages)
+        data = json.loads(args.pages_json.read_text(encoding="utf-8"))
+        # 兼容两种格式：fetch.py 产出的 {pages, keep, drop} 或裸分P列表
+        if isinstance(data, dict):
+            if data.get("keep"):
+                pages_keep = data["keep"]
+                pages_drop = data.get("drop") or []
+            else:
+                pages = data.get("pages") or []
+                pages_keep, pages_drop = filter_pages(pages)
+        elif isinstance(data, list):
+            pages_keep, pages_drop = filter_pages(data)
         print(f"  分P：保留 {len(pages_keep)}，排除 {len(pages_drop)}")
         for d in pages_drop:
-            print(f"    - p{d.get('page')} 「{d.get('title','')}」→ {d['reason']}")
+            print(f"    - p{d.get('page')} 「{d.get('title','')}」→ {d.get('reason','')}")
 
     # 缺口分析
     gaps = []

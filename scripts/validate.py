@@ -48,28 +48,7 @@ def ts_to_sec(ts: str) -> float:
     raise ValueError(f"时间格式非法：{ts}")
 
 
-def media_duration(ffmpeg: str, media: Path) -> float:
-    out = subprocess.run([ffmpeg, "-i", str(media)],
-                         capture_output=True, text=True,
-                         encoding="utf-8", errors="replace")
-    m = re.search(r"Duration: (\d+):(\d+):(\d+)\.(\d+)", out.stderr or "")
-    if not m:
-        return 0.0
-    h, mi, s, cs = m.groups()
-    return int(h) * 3600 + int(mi) * 60 + int(s) + int(cs) / 100.0
-
-
-def find_ffmpeg(p: str = "") -> str:
-    import shutil
-    if p and Path(p).is_file():
-        return p
-    found = shutil.which("ffmpeg")
-    if found:
-        return found
-    for c in [r"D:\Software\FFmpeg\bin\ffmpeg.exe"]:
-        if Path(c).is_file():
-            return c
-    return "ffmpeg"
+from media_util import find_ffmpeg, media_duration  # noqa: E402
 
 
 def check_anchors(anchors: dict, duration: float) -> list[Issue]:
