@@ -454,7 +454,12 @@ def segment(index, diffs, sigs, cheap, fps, cfg, srt_segments=None, ocr_texts=No
         t_start = index[idxs[0]]["t"]
         t_end = round(index[idxs[-1]]["t"] + 1.0 / fps, 3)
         if srt_segments:
-            t_start = snap_to_transcript(t_start, srt_segments, cfg["snap_window"])
+            snapped = snap_to_transcript(t_start, srt_segments, cfg["snap_window"])
+            # 吸附不能把起点拉到上一段末尾之前，否则时间区间重叠
+            if segments:
+                prev_end = segments[-1]["t_end"]
+                snapped = max(snapped, prev_end)
+            t_start = snapped
         segments.append({
             "id": gi,
             "t_start": t_start,
